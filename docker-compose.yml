@@ -1,0 +1,40 @@
+version: "3.1"
+
+services:
+
+  nodered:
+   build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+    - mynet
+    environment:
+    - SERVICE_NAME=node-red
+    ports:
+    - "80:1880" 
+    volumes:
+    - ./node_red_data:/data
+    links:
+    - mosquitto
+
+  mosquitto:
+    image: eclipse-mosquitto
+    hostname: mosquitto
+    container_name: mosquitto
+    expose:
+      - "1883"
+      - "9001"
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/mosquitto_data:/mosquitto/data
+      networks:
+      - mynet
+
+networks:
+  mynet:
+      driver: bridge
+      driver_opts:
+          com.docker.network.enable_ipv6: "true"
